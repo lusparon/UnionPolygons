@@ -1,0 +1,10 @@
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.csprojAssemblyReference.cache
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.Form1.resources
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.Properties.Resources.resources
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.csproj.GenerateResource.cache
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.csproj.CoreCompileInputs.cache
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\bin\Debug\UnionPolygons.exe.config
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\bin\Debug\UnionPolygons.exe
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\bin\Debug\UnionPolygons.pdb
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.exe
+C:\Users\luspa\Desktop\Компьютерная графика\MMCS_332\UnionPolygons\obj\Debug\UnionPolygons.pdb
