@@ -22,17 +22,9 @@ namespace UnionPolygons
         private PointF minPolyPoint, maxPolyPoint;
         private PointF[] polygon = new PointF[0];
         private PointF[] general = new PointF[0];
-        bool flag = false;
         PointF intersection = new PointF(-13, -13);
         public Form1()
         {
-            /*InitializeComponent();
-            pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            bmp = (Bitmap)pictureBox1.Image;
-            Clear();
-            g = Graphics.FromImage(bmp);
-            pictureBox1.Image = bmp;
-            g.TranslateTransform(1, -1);*/
 
             InitializeComponent();
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
@@ -51,16 +43,9 @@ namespace UnionPolygons
             general = new PointF[0];
             polygon = new PointF[0];
             UNION = new PointF[0];
-            //twoPolygons = false;
-            flag = false;
 
             pictureBox1.Invalidate();
         }
-
-        //List<Point> general = new List<Point>();
-        //List<Point> newPolygon = new List<Point>();
-        //bool twoPolygons = false;
-
 
         #region Рисование полигонов
         private void pictureBox1_MouseDown1(object sender, MouseEventArgs e)
@@ -145,7 +130,6 @@ namespace UnionPolygons
             if (general.Count() == 0){
                 general = polygon;
                 polygon = new PointF[0];
-                //flag = false;
             }
         }
 
@@ -160,10 +144,10 @@ namespace UnionPolygons
 
         //Функция берет список, стартовую точку в нем, ближайшее пересечение
         //Действие - добавляет точки в список 
-        private void add_points(ref PointF[] src, PointF start, PointF intersection, bool direction) { 
+        private void add_points(ref PointF[] src, PointF start, PointF intersection) { 
             PointF temp = start;
             PointF nxt ;
-            while (temp != intersection ) {
+            while (temp != intersection) {
                 Array.Resize(ref UNION, UNION.Length + 1);
                 UNION[UNION.Length - 1] = temp;
                 nxt = next(ref src, temp);            
@@ -204,6 +188,7 @@ namespace UnionPolygons
             return result;
         }
 
+        //Точка внутри полигона ?
         private bool isInside(PointF[] polygon, PointF p)
         {
             int n = polygon.Length;
@@ -229,8 +214,6 @@ namespace UnionPolygons
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var general_min = general.OrderBy(x => x.X).ThenBy(x => x.Y).First();
-            var newPol_min = polygon.OrderBy(x => x.X).ThenBy(x => x.Y).First();
             bool flag_pol = true;
             var intersect = IntersectPoints(general,polygon);
             PointF start_point ; 
@@ -241,6 +224,7 @@ namespace UnionPolygons
                 start_point = polygon.First();
                 flag_pol = false;
             }
+
             PointF[] work_lst;
 
             if (flag_pol)
@@ -248,10 +232,8 @@ namespace UnionPolygons
             else
                 work_lst = polygon;
             PointF t = start_point;
-            bool direction = true;
             foreach (var i in intersect){
-                add_points(ref work_lst, t, i, direction);
-                //PointF current_point;
+                add_points(ref work_lst, t, i);
                 if (flag_pol){
                     PointF check_now = next(ref polygon, i);
                     work_lst = polygon;
@@ -270,11 +252,10 @@ namespace UnionPolygons
             {
                 if (UNION.Count() == 0)
                 {
-                    add_points(ref general, general.First(), new PointF(0,0), true);
-                    //Array.Resize(ref UNION, UNION.Length + 1);
-                    //UNION[UNION.Length - 1] = next(ref general, general.First());
+                    Array.Resize(ref UNION, UNION.Length + 1);
+                    UNION[UNION.Length - 1] = next(ref general, general.First());
                 }
-                else add_points(ref general, UNION.Last(), general.First(), true);
+                else add_points(ref general, UNION.Last(), general.First());
             }
             else
             {
@@ -283,15 +264,11 @@ namespace UnionPolygons
                     Array.Resize(ref UNION, UNION.Length + 1);
                     UNION[UNION.Length - 1] = next(ref polygon, polygon.First());
                 }
-                add_points(ref polygon, UNION.Last(), polygon.First(), true);
+                add_points(ref polygon, UNION.Last(), polygon.First());
             }
-
-            foreach (var i in UNION)
-                textBox1.Text += "(" + i.X + "; " + i.Y + ")   ";
 
             g.DrawLines(pen_union, UNION.ToArray());
             pictureBox1.Image = bmp;
-
 		}
 
         private List<PointF> IntersectPoints(PointF[] general, PointF[] polygon)
@@ -300,9 +277,10 @@ namespace UnionPolygons
             int n = general.Length;
             int m = polygon.Length;
             int j = 0, i = 0;
-
+            int cnt ;
             do
             {
+                cnt = 0;
                 int nextI = (i + 1) % n;
                 do
                 {
@@ -313,16 +291,32 @@ namespace UnionPolygons
                         Math.Round(intersection.X,0);
                         Math.Round(intersection.Y, 0);
                         res.Add(intersection);
+                        cnt++;
                     }
                     j = nextJ;
+                    if (cnt == 2)
+                        if (DistanceBetweenTwoPoints(general[nextI], res.Last()) > DistanceBetweenTwoPoints(general[nextI], res.Skip(res.Count() - 2).First()))
+                        {
+                            var x = res.Last();
+                            res.Remove(res.Last());
+                            var x1 = res.Last();
+                            res.Remove(res.Last());
+                            res.Add(x);
+                            res.Add(x1);
+                        }
                 } while (j != 0);
 
                 i = nextI;
             } while (i != 0);
 
-
-
             return res;
+        }
+
+        public static double DistanceBetweenTwoPoints(PointF point1, PointF point2)
+        {
+            var dx = point1.X - point2.X;
+            var dy = point1.Y - point2.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
         }
         private PointF Intersection(PointF p0, PointF p1, PointF p2, PointF p3)
         {
@@ -354,28 +348,3 @@ namespace UnionPolygons
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*textBox1.Text = "";
-           foreach (var i in general)
-               textBox1.Text += "(" + i.X + "; " + i.Y + ")    ";
-
-           textBox2.Text = "";
-           foreach (var i in newPolygon)
-               textBox2.Text += "(" + i.X + "; " + i.Y + ")    ";
-
-           textBox3.Text = "";
-           foreach (var i in intersect)
-               textBox3.Text += "(" + i.X + "; " + i.Y + ")    ";*/
