@@ -162,16 +162,18 @@ namespace UnionPolygons
         //Действие - добавляет точки в список 
         private void add_points(ref PointF[] src, PointF start, PointF intersection, bool direction) { 
             PointF temp = start;
-            while (temp != intersection) {
+            PointF nxt ;
+            while (temp != intersection ) {
                 Array.Resize(ref UNION, UNION.Length + 1);
                 UNION[UNION.Length - 1] = temp;
-                var nxt = next(ref src, temp);            
+                nxt = next(ref src, temp);            
                 if (!pointBelongsToLine(intersection,temp,nxt))
                     temp = nxt;
                 else temp = intersection;
             }
             Array.Resize(ref UNION, UNION.Length + 1);
             UNION[UNION.Length - 1] = intersection;
+            
         }
         
         //Функция возвращает следущую точку массива, если конец -> возвращает начало
@@ -202,17 +204,43 @@ namespace UnionPolygons
             return result;
         }
 
+        private bool isInside(PointF[] polygon, PointF p)
+        {
+            int n = polygon.Length;
+            if (n < 3) return false;
+
+            if (Array.Exists(polygon, point => point.Equals(p)))
+                return true;
+
+            PointF extreme = new PointF(pictureBox1.Width, p.Y);
+
+            int count = 0, i = 0;
+            do
+            {
+                int next = (i + 1) % n;
+                PointF intersection = Intersection(polygon[i], polygon[next], p, extreme);
+                if (intersection.X != -1 && intersection.Y != -1 && intersection.X != polygon[next].X && intersection.Y != polygon[next].Y)
+                    count++;
+                i = next;
+            } while (i != 0);
+
+            return count % 2 == 1;
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             var general_min = general.OrderBy(x => x.X).ThenBy(x => x.Y).First();
             var newPol_min = polygon.OrderBy(x => x.X).ThenBy(x => x.Y).First();
             bool flag_pol = true;
             var intersect = IntersectPoints(general,polygon);
-            //Array.Resize(ref general, intersect.Count());
-            //for (var i = general.Length - intersect.Count(); i < general.Length; i++ )
-             //   general[i]
-
-            PointF start_point = general.First();
+            PointF start_point ; 
+            if (!isInside(polygon, general.First()))
+                start_point = general.First();
+            else
+            {
+                start_point = polygon.First();
+                flag_pol = false;
+            }
             PointF[] work_lst;
 
             if (flag_pol)
@@ -242,20 +270,22 @@ namespace UnionPolygons
             {
                 if (UNION.Count() == 0)
                 {
-                    Array.Resize(ref UNION, UNION.Length + 1);
-                    UNION[UNION.Length - 1] = next(ref general, general.First());
+                    add_points(ref general, general.First(), new PointF(0,0), true);
+                    //Array.Resize(ref UNION, UNION.Length + 1);
+                    //UNION[UNION.Length - 1] = next(ref general, general.First());
                 }
-                add_points(ref general, UNION.Last(), general.First(), true);
+                else add_points(ref general, UNION.Last(), general.First(), true);
             }
             else
             {
                 if (UNION.Count() == 0)
                 {
                     Array.Resize(ref UNION, UNION.Length + 1);
-                    UNION[UNION.Length - 1] = polygon.First();
+                    UNION[UNION.Length - 1] = next(ref polygon, polygon.First());
                 }
                 add_points(ref polygon, UNION.Last(), polygon.First(), true);
             }
+
             foreach (var i in UNION)
                 textBox1.Text += "(" + i.X + "; " + i.Y + ")   ";
 
